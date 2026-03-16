@@ -1,0 +1,375 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>VideoHub – Video Call</title>
+    <link rel="stylesheet" href="/dist/style.css" />
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+  </head>
+
+  <body class="bg-[#0f172a] text-white h-screen flex flex-col overflow-hidden">
+    <div id="toast"></div>
+
+    <div id="recBadge">
+      <span
+        style="
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: #ef4444;
+          display: inline-block;
+        "
+      ></span>
+      REC
+    </div>
+
+    <!-- JOIN OVERLAY -->
+    <div id="joinOverlay">
+      <div
+        class="backdrop-blur-lg bg-white/10 border border-white/20 rounded-xl p-8 w-full max-w-sm mx-4 flex flex-col gap-5"
+      >
+        <div class="flex items-center gap-3 mb-1">
+          <div
+            class="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center"
+          >
+            <i data-lucide="video" style="width: 18px; height: 18px"></i>
+          </div>
+          <div>
+            <h2 class="text-lg font-semibold leading-tight">Join Video Call</h2>
+            <p class="text-xs text-gray-400">VideoHub Meeting Room</p>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label class="text-xs text-gray-400 uppercase tracking-wider"
+            >Your Name</label
+          >
+          <input
+            id="inputName"
+            type="text"
+            placeholder="NAME"
+            class="bg-[#1e293b] px-4 py-2.5 rounded text-sm text-white placeholder-gray-500 w-full"
+            style="border: 1px solid rgba(255, 255, 255, 0.08)"
+            onfocus="this.style.borderColor = 'rgba(124,58,237,0.5)'"
+            onblur="this.style.borderColor = 'rgba(255,255,255,0.08)'"
+          />
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label class="text-xs text-gray-400 uppercase tracking-wider"
+            >Room ID</label
+          >
+          <input
+            id="inputRoom"
+            type="text"
+            placeholder="ID"
+            class="bg-[#1e293b] px-4 py-2.5 rounded text-sm text-white placeholder-gray-500 w-full"
+            style="border: 1px solid rgba(255, 255, 255, 0.08)"
+            onfocus="this.style.borderColor = 'rgba(124,58,237,0.5)'"
+            onblur="this.style.borderColor = 'rgba(255,255,255,0.08)'"
+            onkeydown="if (event.key === 'Enter') joinCall();"
+          />
+        </div>
+
+        <div
+          class="rounded-lg overflow-hidden bg-[#1e293b] relative"
+          style="height: 130px; border: 1px solid rgba(255, 255, 255, 0.08)"
+        >
+          <video
+            id="previewVideo"
+            autoplay
+            muted
+            playsinline
+            class="w-full h-full object-cover"
+          ></video>
+          <div
+            id="previewPH"
+            class="absolute inset-0 flex flex-col items-center justify-center gap-2 text-gray-500"
+          >
+            <i data-lucide="video-off" style="width: 22px; height: 22px"></i>
+            <span class="text-xs">Camera preview</span>
+          </div>
+        </div>
+
+        <div class="flex gap-3">
+          <button
+            onclick="startPreview()"
+            class="flex-1 flex items-center justify-center gap-2 bg-[#1e293b] hover:bg-gray-700 px-4 py-2.5 rounded text-sm transition"
+            style="border: 1px solid rgba(255, 255, 255, 0.08)"
+          >
+            <i data-lucide="camera" style="width: 15px; height: 15px"></i>
+            Preview
+          </button>
+          <button
+            onclick="joinCall()"
+            class="flex-1 flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 px-4 py-2.5 rounded text-sm font-semibold transition"
+          >
+            <i data-lucide="phone" style="width: 15px; height: 15px"></i> Join
+            Call
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- NAVBAR -->
+    <header
+      class="flex items-center justify-between px-6 py-3 border-b border-gray-800 flex-shrink-0"
+      style="z-index: 50; position: relative"
+    >
+      <div class="flex items-center gap-4">
+        <button class="p-2 hover:bg-gray-800 rounded">
+          <i data-lucide="menu" style="width: 20px; height: 20px"></i>
+        </button>
+        <h1
+          class="text-xl font-semibold cursor-pointer hover:text-purple-400 transition"
+          onclick="location.href = '/pages/index.html'"
+        >
+          VideoHub
+        </h1>
+      </div>
+      <div class="flex items-center gap-3">
+        <div
+          class="flex items-center gap-1.5 bg-[#1e293b] px-3 py-1.5 rounded text-sm"
+          style="border: 1px solid rgba(255, 255, 255, 0.08)"
+        >
+          <i
+            data-lucide="video"
+            style="width: 14px; height: 14px; color: #a78bfa"
+          ></i>
+          <span id="roomLabel" class="text-gray-400">Not in a call</span>
+        </div>
+        <div class="text-sm text-gray-400 font-mono" id="callTimer">00:00</div>
+        <div id="pillsWrap" class="flex gap-1"></div>
+      </div>
+      <div class="flex items-center gap-4">
+        <button
+          onclick="copyRoomId()"
+          class="flex items-center gap-2 bg-[#1e293b] px-4 py-2 rounded hover:bg-gray-700 text-sm transition"
+          style="border: 1px solid rgba(255, 255, 255, 0.08)"
+        >
+          <i data-lucide="copy" style="width: 14px; height: 14px"></i> Invite
+        </button>
+        <div
+          id="planBadge"
+          class="text-xs bg-yellow-500 px-2 py-1 rounded hidden"
+        ></div>
+        <div
+          class="w-9 h-9 bg-purple-600 rounded-full flex items-center justify-center cursor-pointer hover:scale-105 transition text-sm font-bold"
+          id="profileAvatar"
+          onclick="location.href = '/pages/profile.html'"
+        >
+          P
+        </div>
+      </div>
+    </header>
+
+    <!-- BODY -->
+    <div class="flex flex-1 overflow-hidden">
+      <!-- SIDEBAR -->
+      <aside
+        class="w-60 bg-black flex-shrink-0 p-6 space-y-6 border-r border-gray-800"
+      >
+        <a
+          href="/pages/index.html"
+          class="flex items-center gap-3 text-gray-400 hover:text-white transition"
+        >
+          <i data-lucide="home" style="width: 18px; height: 18px"></i>
+          <span>Home</span>
+        </a>
+        <a
+          href="/pages/profile.html"
+          class="flex items-center gap-3 text-gray-400 hover:text-white transition"
+        >
+          <i data-lucide="user" style="width: 18px; height: 18px"></i>
+          <span>Profile</span>
+        </a>
+        <a
+          href="/pages/subscription.html"
+          class="flex items-center gap-3 text-gray-400 hover:text-white transition"
+        >
+          <i data-lucide="credit-card" style="width: 18px; height: 18px"></i>
+          <span>Subscription</span>
+        </a>
+        <a
+          href="/pages/downloads.html"
+          class="flex items-center gap-3 text-gray-400 hover:text-white transition"
+        >
+          <i data-lucide="download" style="width: 18px; height: 18px"></i>
+          <span>Downloads</span>
+        </a>
+        <a
+          href="/pages/videocall.html"
+          class="flex items-center gap-3 text-white"
+        >
+          <i
+            data-lucide="video"
+            style="width: 18px; height: 18px; color: #a78bfa"
+          ></i>
+          <span class="text-purple-400 font-semibold">Video Call</span>
+        </a>
+      </aside>
+
+      <!-- CALL AREA -->
+      <div class="flex-1 flex flex-col overflow-hidden">
+        <div class="flex-1 relative" style="overflow: hidden">
+          <!-- Screen share box -->
+          <div id="screenBox">
+            <video id="screenVideo" autoplay playsinline></video>
+            <div id="screenBadge">
+              <i data-lucide="monitor" style="width: 12px; height: 12px"></i>
+              <span id="screenLabel">You are sharing</span>
+            </div>
+          </div>
+
+          <!-- Wait placeholder -->
+          <div id="waitPlaceholder">
+            <div class="pulse-wrap">
+              <div
+                style="
+                  width: 72px;
+                  height: 72px;
+                  border-radius: 50%;
+                  background: rgba(124, 58, 237, 0.15);
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                "
+              >
+                <i
+                  data-lucide="users"
+                  style="width: 32px; height: 32px; color: #a78bfa"
+                ></i>
+              </div>
+            </div>
+            <p class="text-gray-400 text-sm">Waiting for others to join…</p>
+            <button
+              onclick="copyRoomId()"
+              class="bg-[#1e293b] hover:bg-gray-700 px-4 py-2 rounded text-sm flex items-center gap-2 transition"
+              style="border: 1px solid rgba(255, 255, 255, 0.08)"
+            >
+              <i data-lucide="copy" style="width: 14px; height: 14px"></i> Copy
+              Room ID
+            </button>
+          </div>
+
+          <!-- Video grid -->
+          <div id="videoGrid">
+            <div class="peer-tile" id="localTile">
+              <video id="localVideo" autoplay muted playsinline></video>
+              <div class="peer-label" id="localLabel">You</div>
+              <div class="muted-badge" id="localMutedBadge">
+                <i data-lucide="mic-off" style="width: 12px; height: 12px"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chat panel -->
+          <div id="chatPanel">
+            <div
+              class="flex items-center justify-between px-4 py-3 border-b border-gray-800"
+            >
+              <span class="text-sm font-semibold">In-Call Chat</span>
+              <button
+                onclick="toggleChat()"
+                class="p-1 hover:bg-gray-800 rounded transition"
+              >
+                <i
+                  data-lucide="x"
+                  style="width: 15px; height: 15px; color: #94a3b8"
+                ></i>
+              </button>
+            </div>
+            <div id="chatMessages">
+              <div data-ph class="text-center text-gray-600 text-xs py-8">
+                No messages yet
+              </div>
+            </div>
+            <div class="flex gap-2 p-3 border-t border-gray-800">
+              <input
+                id="chatInput"
+                type="text"
+                placeholder="Message…"
+                class="flex-1 bg-[#1e293b] px-3 py-2 rounded text-sm text-white placeholder-gray-500"
+                style="border: 1px solid rgba(255, 255, 255, 0.08)"
+                onfocus="this.style.borderColor = 'rgba(124,58,237,0.4)'"
+                onblur="this.style.borderColor = 'rgba(255,255,255,0.08)'"
+                onkeydown="if (event.key === 'Enter') sendChat();"
+              />
+              <button
+                onclick="sendChat()"
+                class="w-9 h-9 bg-purple-600 hover:bg-purple-700 rounded flex items-center justify-center flex-shrink-0 transition"
+              >
+                <i data-lucide="send" style="width: 14px; height: 14px"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONTROLS BAR -->
+        <div id="controlsBar">
+          <button
+            id="btnMic"
+            onclick="toggleMic()"
+            class="ctrl-btn"
+            data-tip="Mute / Unmute"
+          >
+            <i data-lucide="mic" style="width: 20px; height: 20px"></i>
+          </button>
+          <button
+            id="btnCam"
+            onclick="toggleCamera()"
+            class="ctrl-btn"
+            data-tip="Camera On/Off"
+          >
+            <i data-lucide="video" style="width: 20px; height: 20px"></i>
+          </button>
+          <button
+            id="btnScreen"
+            onclick="shareScreen()"
+            class="ctrl-btn"
+            data-tip="Share Screen"
+          >
+            <i data-lucide="monitor" style="width: 20px; height: 20px"></i>
+          </button>
+          <button
+            id="btnChat"
+            onclick="toggleChat()"
+            class="ctrl-btn"
+            data-tip="Chat"
+          >
+            <i
+              data-lucide="message-square"
+              style="width: 20px; height: 20px"
+            ></i>
+          </button>
+          <button
+            onclick="endCall()"
+            class="ctrl-btn-end"
+            data-tip="End Call"
+            onmouseover="this.style.boxShadow = '0 0 20px rgba(220,38,38,0.4)'"
+            onmouseout="this.style.boxShadow = 'none'"
+          >
+            <i data-lucide="phone-off" style="width: 20px; height: 20px"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    <script src="/js/videocall.js"></script>
+    <script src="/js/theme.js"></script>
+    <script src="/js/toast.js"></script>
+    <script>
+      lucide.createIcons();
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (user) {
+        const b = document.getElementById("planBadge");
+        const av = document.getElementById("profileAvatar");
+        if (user.plan) {
+          b.textContent = user.plan;
+          b.classList.remove("hidden");
+        }
+        if (user.name) av.textContent = user.name.charAt(0).toUpperCase();
+      }
+    </script>
+  </body>
+</html>

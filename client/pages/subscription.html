@@ -1,0 +1,99 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Subscription Plans</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <link rel="stylesheet" href="/dist/style.css" />
+  </head>
+
+  <body
+    class="bg-gradient-to-br from-[#020617] via-[#0f172a] to-[#1e293b] text-white min-h-screen"
+  >
+    <div class="max-w-6xl mx-auto py-20 px-6">
+      <!-- HEADER -->
+      <div class="text-center mb-16">
+        <p class="text-blue-400 text-sm mb-2">Pricing</p>
+        <h1 class="text-5xl font-bold mb-4">Choose the right plan for you</h1>
+        <p class="text-gray-400 max-w-2xl mx-auto">
+          Upgrade your experience with flexible plans designed to enhance your
+          video streaming and downloading capabilities.
+        </p>
+      </div>
+
+      <!-- PLANS -->
+      <div class="grid md:grid-cols-3 gap-10">
+        <!-- BRONZE -->
+        <div
+          class="group backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-8 transition transform hover:scale-105 hover:bg-white/20 shadow-lg"
+        >
+          <h2 class="text-xl font-semibold text-blue-400 mb-3">Bronze</h2>
+          <p class="text-4xl font-bold mb-6">
+            ₹10 <span class="text-sm text-gray-400">/month</span>
+          </p>
+          <p class="text-gray-400 mb-6">
+            Perfect plan for basic video streaming.
+          </p>
+          <ul class="space-y-3 text-gray-300 mb-8">
+            <li>✔ Watch videos up to 7 minutes</li>
+            <li>✔ Download multiple videos</li>
+            <li>✔ Access premium features</li>
+          </ul>
+          <button
+            onclick="buyPlan('Bronze')"
+            class="w-full bg-blue-500 py-2 rounded-lg hover:bg-blue-600"
+          >
+            Update Plan
+          </button>
+        </div>
+
+        <!-- SILVER -->
+        <div
+          class="group backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-8 transition transform hover:scale-105 hover:bg-white/20 shadow-lg"
+        >
+          <h2 class="text-xl font-semibold text-blue-400 mb-3">Silver</h2>
+          <p class="text-4xl font-bold mb-6">
+            ₹50 <span class="text-sm text-gray-400">/month</span>
+          </p>
+          <p class="text-gray-400 mb-6">Ideal for frequent viewers.</p>
+          <ul class="space-y-3 text-gray-300 mb-8">
+            <li>✔ Watch videos up to 10 minutes</li>
+            <li>✔ Unlimited downloads</li>
+            <li>✔ Priority support</li>
+          </ul>
+          <button
+            onclick="buyPlan('Silver')"
+            class="w-full bg-blue-500 py-2 rounded-lg hover:bg-blue-600"
+          >
+            Update Plan
+          </button>
+        </div>
+
+        <!-- GOLD -->
+        <div
+          class="group backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-8 transition transform hover:scale-105 hover:bg-white/20 shadow-lg"
+        >
+          <h2 class="text-xl font-semibold text-blue-400 mb-3">Gold</h2>
+          <p class="text-4xl font-bold mb-6">
+            ₹100 <span class="text-sm text-gray-400">/month</span>
+          </p>
+          <p class="text-gray-400 mb-6">Unlimited premium experience.</p>
+          <ul class="space-y-3 text-gray-300 mb-8">
+            <li>✔ Unlimited watch time</li>
+            <li>✔ Unlimited downloads</li>
+            <li>✔ Premium support</li>
+          </ul>
+          <button
+            onclick="buyPlan('Gold')"
+            class="w-full bg-blue-500 py-2 rounded-lg hover:bg-blue-600"
+          >
+            Update Plan
+          </button>
+        </div>
+      </div>
+    </div>
+    <script src="/js/subscription.js"></script>
+    <script src="/js/theme.js"></script>
+    <script src="/js/toast.js"></script>
+  </body>
+</html>

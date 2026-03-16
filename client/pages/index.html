@@ -1,0 +1,144 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>VideoHub</title>
+    <link rel="stylesheet" href="/dist/style.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+  </head>
+  <body class="bg-[#0f172a] text-white">
+    <!-- NAVBAR -->
+    <header
+      class="flex items-center justify-between px-6 py-3 border-b border-gray-800"
+    >
+      <div class="flex items-center gap-4">
+        <button id="menuBtn" class="p-2 hover:bg-gray-800 rounded">
+          <i data-lucide="menu"></i>
+        </button>
+        <h1
+          class="text-xl font-semibold cursor-pointer hover:text-purple-400 transition"
+          onclick="location.href = '/pages/index.html'"
+        >
+          VideoHub
+        </h1>
+      </div>
+
+      <input
+        type="text"
+        placeholder="Search videos"
+        class="bg-[#1e293b] px-4 py-2 rounded w-96 outline-none"
+      />
+
+      <div class="flex items-center gap-4">
+        <button
+          onclick="location.href = '/pages/upload.html'"
+          class="flex items-center gap-2 bg-[#1e293b] px-4 py-2 rounded hover:bg-gray-700"
+        >
+          <i data-lucide="plus"></i> Create
+        </button>
+
+        <button class="p-2 hover:bg-gray-800 rounded">
+          <i data-lucide="bell"></i>
+        </button>
+
+        <div class="flex items-center gap-2">
+          <div
+            id="planBadge"
+            class="hidden bg-yellow-500 px-3 py-1 rounded text-sm font-semibold"
+          ></div>
+
+          <div
+            onclick="openProfile()"
+            class="w-9 h-9 bg-purple-600 rounded-full flex items-center justify-center cursor-pointer hover:scale-105 transition font-bold"
+            id="profileAvatar"
+          >
+            P
+          </div>
+        </div>
+      </div>
+    </header>
+    <div class="flex" style="min-height: calc(100vh - 57px)">
+      <!-- SIDEBAR -->
+      <aside id="sidebar" class="w-60 bg-black flex-shrink-0 p-6 space-y-6">
+        <a
+          href="/pages/index.html"
+          class="flex items-center gap-3 hover:text-purple-400 transition"
+        >
+          <i data-lucide="home"></i> <span class="label">Home</span>
+        </a>
+        <a
+          href="/pages/profile.html"
+          class="flex items-center gap-3 hover:text-purple-400 transition"
+        >
+          <i data-lucide="user"></i> <span class="label">Profile</span>
+        </a>
+        <a
+          href="/pages/subscription.html"
+          class="flex items-center gap-3 hover:text-purple-400 transition"
+        >
+          <i data-lucide="credit-card"></i>
+          <span class="label">Subscription</span>
+        </a>
+        <a
+          href="/pages/downloads.html"
+          class="flex items-center gap-3 hover:text-purple-400 transition"
+        >
+          <i data-lucide="download"></i> <span class="label">Downloads</span>
+        </a>
+        <a
+          href="/pages/videocall.html"
+          class="flex items-center gap-3 hover:text-purple-400 transition"
+        >
+          <i data-lucide="video"></i> <span class="label">Video call</span>
+        </a>
+      </aside>
+
+      <!-- MAIN CONTENT -->
+      <div id="mainContent" class="flex-1 p-6 transition-all duration-300">
+        <div
+          id="videoContainer"
+          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-7xl mx-auto"
+        ></div>
+      </div>
+    </div>
+
+    <script>
+      lucide.createIcons();
+
+      function showUserPlan() {
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (!user) return;
+
+        // Plan badge
+        if (user.plan) {
+          const badge = document.getElementById("planBadge");
+          if (badge) {
+            badge.innerText = user.plan;
+            badge.classList.remove("hidden");
+          }
+        }
+        const av = document.getElementById("profileAvatar");
+        if (av && user.name) av.textContent = user.name.charAt(0).toUpperCase();
+      }
+      showUserPlan();
+
+      function openProfile() {
+        location.href = "/pages/profile.html";
+      }
+
+      function getWatchLimit() {
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (!user || !user.plan) return 5;
+        if (user.plan === "Bronze") return 7;
+        if (user.plan === "Silver") return 10;
+        if (user.plan === "Gold") return 999;
+        return 5;
+      }
+      window.watchLimit = getWatchLimit();
+    </script>
+
+    <script src="/js/home.js"></script>
+    <script src="/js/sidebar.js"></script>
+    <script src="/js/theme.js"></script>
+  </body>
+</html>

@@ -1,0 +1,119 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Downloads - VideoHub</title>
+    <link rel="stylesheet" href="/dist/style.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+  </head>
+
+  <body class="bg-[#0f172a] text-white">
+    <!-- NAVBAR -->
+    <header
+      class="flex items-center justify-between px-6 py-3 border-b border-gray-800"
+    >
+      <div class="flex items-center gap-4">
+        <button class="p-2 hover:bg-gray-800 rounded">
+          <i data-lucide="menu"></i>
+        </button>
+        <h1
+          class="text-xl font-semibold cursor-pointer hover:text-purple-400 transition"
+          onclick="location.href = '/pages/index.html'"
+        >
+          VideoHub
+        </h1>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <div
+          id="planBadge"
+          class="hidden px-3 py-1 rounded text-sm font-semibold"
+        ></div>
+        <div
+          onclick="location.href = '/pages/profile.html'"
+          id="profileAvatar"
+          class="w-9 h-9 bg-purple-600 rounded-full flex items-center justify-center cursor-pointer hover:scale-105 transition font-bold"
+        >
+          P
+        </div>
+      </div>
+    </header>
+
+    <div class="flex">
+      <!-- SIDEBAR -->
+      <aside class="w-60 bg-black min-h-screen p-6 space-y-6">
+        <a
+          href="/pages/index.html"
+          class="flex items-center gap-3 text-gray-400 hover:text-white transition"
+        >
+          <i data-lucide="home"></i> Home
+        </a>
+        <a
+          href="/pages/profile.html"
+          class="flex items-center gap-3 text-gray-400 hover:text-white transition"
+        >
+          <i data-lucide="user"></i> Profile
+        </a>
+        <a
+          href="/pages/subscription.html"
+          class="flex items-center gap-3 text-gray-400 hover:text-white transition"
+        >
+          <i data-lucide="credit-card"></i> Subscription
+        </a>
+        <a
+          href="/pages/downloads.html"
+          class="flex items-center gap-3 text-white font-semibold"
+        >
+          <i data-lucide="download" style="color: #818cf8"></i>
+          <span class="text-indigo-400">Downloads</span>
+        </a>
+        <a
+          href="/pages/videocall.html"
+          class="flex items-center gap-3 text-gray-400 hover:text-white transition"
+        >
+          <i data-lucide="video"></i> Video Call
+        </a>
+      </aside>
+
+      <!-- CONTENT -->
+      <div class="flex-1 p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-lg font-semibold">Downloaded Videos</h2>
+          <p class="text-sm text-gray-400" id="downloadCount"></p>
+        </div>
+
+        <div
+          id="downloadsContainer"
+          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+        ></div>
+      </div>
+    </div>
+
+    <script>
+      lucide.createIcons();
+      const _user = JSON.parse(localStorage.getItem("user"));
+      if (_user) {
+        const badge = document.getElementById("planBadge");
+        const av = document.getElementById("profileAvatar");
+        if (av && _user.name)
+          av.textContent = _user.name.charAt(0).toUpperCase();
+        if (badge && _user.plan) {
+          badge.classList.remove("hidden");
+          badge.textContent = _user.plan;
+          const colors = {
+            Free: "bg-gray-500 text-white",
+            Bronze: "bg-yellow-500 text-black",
+            Silver: "bg-gray-300 text-black",
+            Gold: "bg-yellow-400 text-black",
+          };
+          badge.className =
+            (colors[_user.plan] || "bg-gray-500 text-white") +
+            " px-3 py-1 rounded text-sm font-semibold";
+        }
+      }
+    </script>
+    <script src="/js/download.js"></script>
+    <script src="/js/theme.js"></script>
+    <script src="/js/toast.js"></script>
+  </body>
+</html>

@@ -1,0 +1,132 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Upload Video</title>
+    <link rel="stylesheet" href="/dist/style.css" />
+    <style>
+      #toast {
+        position: fixed;
+        top: 1.5rem;
+        left: 50%;
+        transform: translateX(-50%) translateY(-10px);
+        background: #22c55e;
+        color: white;
+        padding: 10px 24px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 600;
+        opacity: 0;
+        transition: all 0.3s ease;
+        z-index: 999;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 20px rgba(34, 197, 94, 0.4);
+        pointer-events: none;
+        white-space: nowrap;
+      }
+      #toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+      #toast.error {
+        background: #ef4444;
+        box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
+      }
+    </style>
+  </head>
+
+  <body
+    class="bg-gray-900 text-white min-h-screen flex items-center justify-center"
+  >
+    <!-- TOAST -->
+    <div id="toast">✓ Uploaded Successfully!</div>
+
+    <form id="uploadForm" class="bg-gray-800 p-8 rounded-xl w-96 space-y-4">
+      <h2 class="text-2xl font-bold">Upload Video</h2>
+
+      <input
+        type="text"
+        name="title"
+        placeholder="Title"
+        class="w-full p-2 rounded bg-gray-700"
+        required
+      />
+
+      <textarea
+        name="description"
+        placeholder="Description"
+        class="w-full p-2 rounded bg-gray-700"
+      ></textarea>
+
+      <label class="text-sm">Thumbnail</label>
+      <input
+        type="file"
+        name="thumbnail"
+        accept="image/*"
+        class="w-full p-2 bg-gray-700 rounded"
+        required
+      />
+
+      <label class="text-sm">Video File</label>
+      <input
+        type="file"
+        name="video"
+        accept="video/*"
+        class="w-full p-2 bg-gray-700 rounded"
+        required
+      />
+
+      <button
+        class="w-full bg-indigo-600 py-2 rounded hover:bg-indigo-500 transition"
+      >
+        Upload
+      </button>
+    </form>
+
+    <script>
+      function showToast(msg, isError = false) {
+        const t = document.getElementById("toast");
+        t.textContent = isError ? "✗ " + msg : "✓ " + msg;
+        t.classList.toggle("error", isError);
+        t.classList.add("show");
+        setTimeout(() => t.classList.remove("show"), 3000);
+      }
+
+      document
+        .getElementById("uploadForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const btn = e.target.querySelector("button");
+          btn.textContent = "Uploading...";
+          btn.disabled = true;
+
+          try {
+            const res = await fetch("/api/videos/upload", {
+              method: "POST",
+              body: new FormData(e.target),
+            });
+
+            if (res.ok) {
+              showToast("Uploaded Successfully!");
+              setTimeout(
+                () => (window.location.href = "/pages/index.html"),
+                2000,
+              );
+            } else {
+              showToast("Upload failed. Try again.", true);
+              btn.textContent = "Upload";
+              btn.disabled = false;
+            }
+          } catch (err) {
+            showToast("Upload failed. Check connection.", true);
+            btn.textContent = "Upload";
+            btn.disabled = false;
+          }
+        });
+    </script>
+    <script src="/js/theme.js"></script>
+    <script src="/js/toast.js"></script>
+  </body>
+</html>

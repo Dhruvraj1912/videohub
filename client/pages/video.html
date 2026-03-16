@@ -1,0 +1,238 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>VideoHub</title>
+    <link rel="stylesheet" href="/dist/style.css" />
+    <link rel="stylesheet" href="/css/video.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  </head>
+
+  <body class="bg-[#0f172a] text-white">
+    <!-- NAVBAR -->
+    <header
+      class="flex items-center justify-between px-6 py-3 border-b border-gray-800"
+    >
+      <div class="flex items-center gap-4">
+        <button class="p-2 hover:bg-gray-800 rounded">
+          <i data-lucide="menu"></i>
+        </button>
+        <h1
+          class="text-xl font-semibold cursor-pointer hover:text-purple-400 transition"
+          onclick="location.href = '/pages/index.html'"
+        >
+          VideoHub
+        </h1>
+      </div>
+
+      <input
+        type="text"
+        placeholder="Search videos"
+        class="bg-[#1e293b] px-4 py-2 rounded w-96 outline-none"
+      />
+
+      <div class="flex items-center gap-4">
+        <button
+          onclick="location.href = '/pages/upload.html'"
+          class="flex items-center gap-2 bg-[#1e293b] px-4 py-2 rounded hover:bg-gray-700"
+        >
+          <i data-lucide="plus"></i> Create
+        </button>
+        <button class="p-2 hover:bg-gray-800 rounded">
+          <i data-lucide="bell"></i>
+        </button>
+        <div
+          id="planBadge"
+          class="hidden px-3 py-1 rounded text-sm font-semibold"
+        ></div>
+        <div
+          onclick="location.href = '/pages/profile.html'"
+          id="profileAvatar"
+          class="w-9 h-9 bg-purple-600 rounded-full flex items-center justify-center cursor-pointer hover:scale-105 transition font-bold"
+        >
+          P
+        </div>
+      </div>
+    </header>
+
+    <div class="flex">
+      <!-- SIDEBAR -->
+      <aside class="w-60 bg-black min-h-screen p-6 space-y-6">
+        <a
+          href="/pages/index.html"
+          class="flex items-center gap-3 text-gray-400 hover:text-white transition"
+        >
+          <i data-lucide="home"></i> Home
+        </a>
+        <a
+          href="/pages/profile.html"
+          class="flex items-center gap-3 text-gray-400 hover:text-white transition"
+        >
+          <i data-lucide="user"></i> Profile
+        </a>
+        <a
+          href="/pages/subscription.html"
+          class="flex items-center gap-3 text-gray-400 hover:text-white transition"
+        >
+          <i data-lucide="credit-card"></i> Subscription
+        </a>
+        <a
+          href="/pages/downloads.html"
+          class="flex items-center gap-3 text-gray-400 hover:text-white transition"
+        >
+          <i data-lucide="download"></i> Downloads
+        </a>
+        <a
+          href="/pages/videocall.html"
+          class="flex items-center gap-3 text-gray-400 hover:text-white transition"
+        >
+          <i data-lucide="video"></i> Video Call
+        </a>
+      </aside>
+
+      <!-- MAIN CONTENT -->
+      <div class="flex-1 p-6 grid grid-cols-12 gap-8">
+        <!-- VIDEO AREA -->
+        <div class="col-span-8 space-y-5">
+          <div
+            class="backdrop-blur-lg bg-white/10 border border-white/20 rounded-xl overflow-hidden"
+          >
+            <video id="player" class="w-full" controls></video>
+          </div>
+
+          <h2 id="title" class="text-xl font-semibold">Loading...</h2>
+
+          <!-- ACTION BUTTONS -->
+          <div class="flex items-center gap-3 flex-wrap">
+            <button
+              id="downloadBtn"
+              class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded transition"
+            >
+              <i data-lucide="download" style="width: 16px; height: 16px"></i>
+              Download
+            </button>
+
+            <span
+              id="downloadedBadge"
+              class="hidden text-green-400 text-sm items-center gap-1"
+            >
+              <i
+                data-lucide="check-circle"
+                style="width: 15px; height: 15px"
+              ></i>
+              Downloaded
+            </span>
+
+            <button
+              onclick="deleteVideo()"
+              class="flex items-center gap-2 bg-red-600 hover:bg-red-700 px-4 py-2 rounded transition"
+            >
+              <i data-lucide="trash-2" style="width: 16px; height: 16px"></i>
+              Delete
+            </button>
+          </div>
+
+          <!-- COMMENTS -->
+          <div class="mt-8">
+            <h3 class="text-lg mb-3 font-semibold">Comments</h3>
+            <div class="flex gap-3">
+              <input
+                id="commentInput"
+                class="flex-1 bg-white/10 border border-white/20 rounded px-3 py-2 outline-none"
+                placeholder="Write a comment..."
+              />
+              <button
+                onclick="postComment()"
+                class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded transition"
+              >
+                Post
+              </button>
+            </div>
+            <div id="commentsContainer" class="mt-5 space-y-4"></div>
+          </div>
+        </div>
+
+        <!-- RECOMMENDED -->
+        <div class="col-span-4">
+          <h3 class="text-lg font-semibold mb-4">Recommended</h3>
+          <div id="recommendedVideos" class="space-y-4"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- UPGRADE POPUP -->
+    <div
+      id="upgradePopup"
+      class="hidden fixed inset-0 bg-black/70 items-center justify-center z-50"
+    >
+      <div
+        class="bg-[#1e293b] p-8 rounded-xl text-center w-96 space-y-4 border border-white/10"
+      >
+        <div
+          class="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto"
+        >
+          <i
+            data-lucide="lock"
+            style="width: 22px; height: 22px; color: #eab308"
+          ></i>
+        </div>
+        <h2 class="text-xl font-semibold">Download Limit Reached</h2>
+        <p class="text-gray-400 text-sm">
+          Free users can download <strong>1 video per day</strong>.<br />
+          Upgrade to download unlimited videos.
+        </p>
+        <div class="flex gap-3 justify-center">
+          <button
+            onclick="
+              document.getElementById('upgradePopup').classList.add('hidden');
+              document.getElementById('upgradePopup').classList.remove('flex');
+            "
+            class="px-4 py-2 rounded bg-white/10 hover:bg-white/20 text-sm transition"
+          >
+            Cancel
+          </button>
+          <button
+            onclick="location.href = '/pages/subscription.html'"
+            class="px-5 py-2 rounded bg-yellow-500 hover:bg-yellow-600 text-black font-semibold text-sm transition"
+          >
+            Upgrade Plan
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- WATCH LIMIT POPUP -->
+    <div
+      id="watchLimitPopup"
+      class="hidden fixed inset-0 bg-black/70 items-center justify-center z-50"
+    >
+      <div
+        class="bg-[#1e293b] p-8 rounded-xl text-center w-96 space-y-4 border border-white/10"
+      >
+        <h2 class="text-xl font-semibold">Watch Limit Reached</h2>
+        <p class="text-gray-300 text-sm">Upgrade your plan to keep watching</p>
+        <div class="flex gap-3 justify-center">
+          <button
+            onclick="
+              document.getElementById('watchLimitPopup').classList.add('hidden')
+            "
+            class="px-4 py-2 rounded bg-white/10 hover:bg-white/20 text-sm transition"
+          >
+            Close
+          </button>
+          <button
+            onclick="location.href = '/pages/subscription.html'"
+            class="px-5 py-2 rounded bg-red-600 hover:bg-red-700 font-semibold text-sm transition"
+          >
+            Upgrade
+          </button>
+        </div>
+      </div>
+    </div>
+    <script src="/js/toast.js"></script>
+    <script src="/js/video.js"></script>
+    <script src="/js/download.js"></script>
+    <script src="/js/theme.js"></script>
+  </body>
+</html>

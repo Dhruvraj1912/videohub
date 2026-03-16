@@ -1,0 +1,134 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Profile - VideoHub</title>
+    <link rel="stylesheet" href="/dist/style.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+  </head>
+
+  <body class="bg-[#0f172a] text-white">
+    <!-- NAVBAR -->
+    <header
+      class="flex items-center justify-between px-6 py-3 border-b border-gray-800"
+    >
+      <div class="flex items-center gap-4">
+        <button onclick="history.back()" class="p-2 hover:bg-gray-800 rounded">
+          <i data-lucide="arrow-left"></i>
+        </button>
+        <h1
+          class="text-xl font-semibold cursor-pointer hover:text-purple-400 transition"
+          onclick="location.href = '/pages/index.html'"
+        >
+          VideoHub
+        </h1>
+      </div>
+    </header>
+
+    <div class="flex justify-center mt-10 px-4">
+      <div
+        class="backdrop-blur-lg bg-white/10 border border-white/20 rounded-xl p-8 w-full max-w-sm shadow-lg space-y-6"
+      >
+        <!-- Avatar + name -->
+        <div class="flex flex-col items-center gap-2">
+          <div
+            id="avatar"
+            class="w-20 h-20 bg-purple-600 rounded-full flex items-center justify-center text-3xl font-bold"
+          ></div>
+          <h2 id="name" class="text-xl font-semibold"></h2>
+          <span
+            id="planPill"
+            class="text-xs px-3 py-1 rounded-full bg-gray-700 text-gray-300"
+          ></span>
+        </div>
+
+        <!-- Info -->
+        <div class="space-y-3 text-sm">
+          <div class="flex justify-between">
+            <span class="text-gray-400">Email</span>
+            <span id="email" class="text-right truncate max-w-xs"></span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-400">State</span>
+            <span id="city"></span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-400">Plan</span>
+            <span id="plan"></span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-400">Watch Limit</span>
+            <span id="limit"></span>
+          </div>
+        </div>
+
+        <div class="border-t border-white/10 pt-4 space-y-3">
+          <!-- Logout -->
+          <button
+            onclick="logout()"
+            class="w-full flex items-center justify-center gap-2 bg-[#1e293b] hover:bg-gray-700 py-2.5 rounded transition text-sm"
+          >
+            <i data-lucide="log-out" style="width: 15px; height: 15px"></i>
+            Logout
+          </button>
+
+          <!-- Deactivate -->
+          <button
+            onclick="showDeactivateConfirm()"
+            class="w-full flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 py-2.5 rounded transition text-sm"
+          >
+            <i data-lucide="user-x" style="width: 15px; height: 15px"></i>
+            Deactivate Account
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEACTIVATE CONFIRM POPUP -->
+    <div
+      id="deactivatePopup"
+      class="fixed inset-0 bg-black/70 items-center justify-center z-50 hidden"
+    >
+      <div
+        class="bg-[#1e293b] border border-white/10 rounded-xl p-8 w-full max-w-sm text-center space-y-4"
+      >
+        <div
+          class="w-12 h-12 bg-red-500/20 rounded-full flex items-center justify-center mx-auto"
+        >
+          <i
+            data-lucide="alert-triangle"
+            style="width: 22px; height: 22px; color: #ef4444"
+          ></i>
+        </div>
+        <h2 class="text-xl font-semibold">Delete Account?</h2>
+        <p class="text-gray-400 text-sm">
+          This will permanently delete your account and all your data.
+          <br /><strong class="text-white">This cannot be undone.</strong>
+        </p>
+        <div class="flex gap-3 justify-center pt-2">
+          <button
+            onclick="
+              document.getElementById('deactivatePopup').classList.add('hidden')
+            "
+            class="px-5 py-2 rounded bg-white/10 hover:bg-white/20 text-sm transition"
+          >
+            Cancel
+          </button>
+          <button
+            onclick="deactivateAccount()"
+            class="px-5 py-2 rounded bg-red-600 hover:bg-red-700 font-semibold text-sm transition"
+          >
+            Yes, Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="/js/profile.js"></script>
+    <script src="/js/theme.js"></script>
+    <script src="/js/toast.js"></script>
+    <script>
+      lucide.createIcons();
+    </script>
+  </body>
+</html>
