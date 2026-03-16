@@ -11,7 +11,7 @@ lucide.createIcons();
 async function loadVideo() {
   const res = await fetch("/api/videos/" + id);
   const data = await res.json();
-  video.src = "/uploads/videos/" + data.videoUrl;
+  video.src = getVideoUrl(data.videoUrl);
   document.getElementById("title").innerText = data.title;
   setWatchLimit();
 }
@@ -126,7 +126,7 @@ async function loadRecommended() {
     const card = document.createElement("div");
     card.className = "flex gap-3 cursor-pointer hover:bg-white/10 p-2 rounded";
     card.innerHTML = `
-  <img src="/uploads/thumbnails/${vid.thumbnail}" class="w-28 h-20 object-cover rounded flex-shrink-0"/>
+  <img src="${getThumbnailUrl(vid.thumbnail)}" class="w-28 h-20 object-cover rounded flex-shrink-0"/>
   <div class="flex flex-col justify-center min-w-0">
     <h4 class="text-sm font-semibold leading-tight line-clamp-2 break-words">${vid.title}</h4>
     <p class="text-xs text-gray-400 mt-1">VideoHub</p>

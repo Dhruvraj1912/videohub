@@ -1,4 +1,9 @@
-// VIDEO PAGE
+// download.js
+
+// =====================================================
+// VIDEO PAGE – Download button logic
+// =====================================================
+
 async function handleDownload() {
   const user = JSON.parse(localStorage.getItem("user"));
   if (!user) {
@@ -30,7 +35,7 @@ async function handleDownload() {
 
     if (data.success) {
       const link = document.createElement("a");
-      link.href = "/uploads/videos/" + data.videoUrl;
+      link.href = getVideoUrl(data.videoUrl);
       link.download = data.title || "video";
       document.body.appendChild(link);
       link.click();
@@ -91,7 +96,26 @@ async function checkDownloadStatus() {
     console.error("Status check error:", err);
   }
 }
+
+// =====================================================
 // DOWNLOADS PAGE
+// =====================================================
+
+function getThumbnailSrc(thumbnail) {
+  if (!thumbnail) return "";
+  // Cloudinary URL
+  if (thumbnail.startsWith("http")) return thumbnail;
+  // Local file with extension
+  if (thumbnail.includes(".")) return "/uploads/thumbnails/" + thumbnail;
+  // Local file without extension — try jpg
+  return "/uploads/thumbnails/" + thumbnail + ".jpg";
+}
+
+function getVideoSrc(videoUrl) {
+  if (!videoUrl) return "";
+  if (videoUrl.startsWith("http")) return videoUrl;
+  return "/uploads/videos/" + videoUrl;
+}
 
 async function loadDownloads() {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -117,7 +141,7 @@ async function loadDownloads() {
     const downloads = await res.json();
     container.innerHTML = "";
 
-    if (!downloads || downloads.length === 0) {
+    if (!Array.isArray(downloads) || downloads.length === 0) {
       container.innerHTML = `
         <div class="col-span-4 text-center py-16 text-gray-400">
           <p class="text-lg mb-2">No downloads yet</p>
@@ -133,9 +157,15 @@ async function loadDownloads() {
       const card = document.createElement("div");
       card.className =
         "backdrop-blur-lg bg-white/10 border border-white/20 rounded-xl overflow-hidden hover:scale-105 transition cursor-pointer";
+
+      const thumbSrc = getThumbnailSrc(item.thumbnail);
+
       card.innerHTML = `
-        <img src="/uploads/thumbnails/${item.thumbnail}" class="w-full h-44 object-cover"
-          onerror="this.style.background='#1e293b'; this.style.height='176px';" />
+        <div class="w-full h-44 bg-[#1e293b] flex items-center justify-center overflow-hidden">
+          <img src="${thumbSrc}"
+            class="w-full h-full object-cover"
+            onerror="this.parentElement.innerHTML='<div class=\\'w-full h-full flex items-center justify-center text-gray-600 text-xs\\'>No thumbnail</div>'" />
+        </div>
         <div class="p-3 flex justify-between items-center gap-2">
           <h3 class="text-sm font-semibold truncate flex-1">${item.title || "Untitled"}</h3>
           <button onclick="event.stopPropagation(); deleteDownload('${item._id}')"
@@ -143,12 +173,14 @@ async function loadDownloads() {
             Remove
           </button>
         </div>`;
+
       card.onclick = () =>
         (window.location.href = "/pages/video.html?id=" + item.videoId);
       container.appendChild(card);
     });
   } catch (err) {
-    container.innerHTML = `<p class="text-red-400 col-span-4 text-center py-8">Failed to load downloads</p>`;
+    console.error("Load downloads error:", err);
+    container.innerHTML = `<p class="text-red-400 col-span-4 text-center py-8">Failed to load downloads: ${err.message}</p>`;
   }
 }
 
@@ -172,6 +204,8 @@ async function deleteDownload(downloadId) {
   }
 }
 
+// =====================================================
 // AUTO-RUN
+// =====================================================
 if (document.getElementById("downloadsContainer")) loadDownloads();
 if (document.getElementById("downloadBtn")) checkDownloadStatus();
