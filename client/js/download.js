@@ -1,9 +1,3 @@
-// download.js
-
-// =====================================================
-// VIDEO PAGE – Download button logic
-// =====================================================
-
 async function handleDownload() {
   const user = JSON.parse(localStorage.getItem("user"));
   if (!user) {
@@ -97,17 +91,11 @@ async function checkDownloadStatus() {
   }
 }
 
-// =====================================================
 // DOWNLOADS PAGE
-// =====================================================
-
 function getThumbnailSrc(thumbnail) {
   if (!thumbnail) return "";
-  // Cloudinary URL
   if (thumbnail.startsWith("http")) return thumbnail;
-  // Local file with extension
   if (thumbnail.includes(".")) return "/uploads/thumbnails/" + thumbnail;
-  // Local file without extension — try jpg
   return "/uploads/thumbnails/" + thumbnail + ".jpg";
 }
 
@@ -203,9 +191,6 @@ async function deleteDownload(downloadId) {
     showToast("Something went wrong", "error");
   }
 }
-
-// =====================================================
 // AUTO-RUN
-// =====================================================
 if (document.getElementById("downloadsContainer")) loadDownloads();
 if (document.getElementById("downloadBtn")) checkDownloadStatus();
