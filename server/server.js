@@ -57,7 +57,16 @@ app.use(
   "/uploads/thumbnails",
   express.static(path.join(__dirname, "uploads/thumbnails")),
 );
+const fs   = require("fs");
 
+// Create upload directories on startup
+const dirs = [
+  path.join(__dirname, "uploads/videos"),
+  path.join(__dirname, "uploads/thumbnails"),
+];
+dirs.forEach(dir => {
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+});
 // Existing API Routes
 app.use("/api/videos", videoRoutes);
 app.use("/api/comments", commentRoutes);
